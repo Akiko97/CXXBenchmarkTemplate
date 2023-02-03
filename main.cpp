@@ -30,9 +30,7 @@ void reduce_avx(const float * const array, size_t size, float &result)
 namespace benchmark {
     void gen(std::string const& typeName, char const* mustacheTemplate,
              ankerl::nanobench::Bench const& bench) {
-        std::ofstream templateOut("mustache.template." + typeName);
-        templateOut << mustacheTemplate;
-        std::ofstream renderOut("mustache.render." + typeName);
+        std::ofstream renderOut("result.render." + typeName);
         ankerl::nanobench::render(mustacheTemplate, bench, renderOut);
     }
 }
