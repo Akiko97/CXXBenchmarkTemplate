@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <immintrin.h>
 #include <x86intrin.h>
+#include <fstream>
 
 #define TIMES 0xFFUL
 
@@ -24,6 +25,16 @@ void reduce_avx(const float * const array, size_t size, float &result)
     temp = _mm256_hadd_ps(temp, temp);
     result = _mm256_cvtss_f32(_mm256_add_ps(
             temp, _mm256_permute2f128_ps(temp, temp, 1)));
+}
+
+namespace benchmark {
+    void gen(std::string const& typeName, char const* mustacheTemplate,
+             ankerl::nanobench::Bench const& bench) {
+        std::ofstream templateOut("mustache.template." + typeName);
+        templateOut << mustacheTemplate;
+        std::ofstream renderOut("mustache.render." + typeName);
+        ankerl::nanobench::render(mustacheTemplate, bench, renderOut);
+    }
 }
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
@@ -53,6 +64,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
             reduce_avx(array, size, result);
         ankerl::nanobench::doNotOptimizeAway(result);
     });
+    benchmark::gen("json", ankerl::nanobench::templates::json(), bench);
+    benchmark::gen("html", ankerl::nanobench::templates::htmlBoxplot(), bench);
+    benchmark::gen("csv", ankerl::nanobench::templates::csv(), bench);
     // Benchmark End
     free(array);
     return 0;
